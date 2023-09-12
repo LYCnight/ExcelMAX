@@ -1,0 +1,91 @@
+import xlrd
+import openpyxl
+
+#copyright by lzd  -- version 2.0
+#xlrd包版本请使用 1.2.0，输入数据格式为xlsx
+#ps:原数据中若有#N/A,请替换成空格；否则会变成42
+# 输入
+book = xlrd.open_workbook("D:\\毕业设计 3.12\\02 数据\\timecube\\timecube-NR\\cityRecover_beforetimecube.xlsx") #请手动修改路径与文件名
+sheet = book.sheet_by_index(0)
+rowx=sheet.nrows #获取总行数
+print(f"表单行数：{rowx}")
+colx=sheet.ncols #获取总列数
+print(f"表单列数：{colx}")
+
+book = openpyxl.Workbook()
+sh = book.active
+sh.title = 'timecube'
+book.save('timecube.xlsx') #会覆盖
+
+'''
+    colx=0
+    list1 = sheet.col_values(colx=0,start_rowx=1)
+    list2 = sheet.col_values(colx=1,start_rowx=1)
+    time = sheet.cell(0,2).value #先行后列，从0开始
+    list3 = sheet.col_values(colx=2,start_rowx=1)
+'''
+
+colx1=0     #list1列数变化，从0开始
+colx2=1     #list2列数变化，从0开始
+colx3=2     #list3、4列数变化，从0开始
+row1 = 2    #写入OID行数变化
+row2 = 2    #写入cityname行数变化
+rowtime = 2 #写入time行数变化
+row3 = 2    #写入确诊数行数变化
+row4 = 2    #写入x
+row5 = 2    #写入y
+#type(sheet.cell(0,5))
+
+while True:
+    list1 = sheet.col_values(colx1,start_rowx=1) #读取OID，（该函数属于xlrd库，行列从0开始）
+    list2 = sheet.col_values(colx2,start_rowx=1) #读取cityname
+    time = sheet.cell(0,colx3).value       #读取time,#先行后列，从0开始
+    list3 = sheet.col_values(colx3,start_rowx=1) #读取确诊数
+    list4 = sheet.col_values(colx-2,start_rowx=1) #读取x
+    list5 = sheet.col_values(colx-1,start_rowx=1) #读取y
+
+    for one in list1:
+        sh.cell(row1, 1).value = one #写入OID，（该函数属于openpyx1库，行列从1开始）
+        row1 += 1
+
+    for one in list2:
+        sh.cell(row2, 2).value = one #写入cityname
+        row2 += 1
+    
+    for one in range(rowx-1):  #自适应对象数
+        sh.cell(rowtime, 3).value = time #写入time
+        rowtime += 1
+     
+    for one in list3:
+        sh.cell(row3, 4).value = one #写入确诊数
+        row3 += 1
+
+    for one in list4:
+        sh.cell(row4, 5).value = one #写入x
+        row4 += 1
+
+    for one in list5:
+        sh.cell(row5, 6).value = one #写入y
+        row5 += 1
+
+    # str = ''.join(sheet.cell(0,colx3).value)  #返回下一个日期的确诊数，并转化为字符串
+    # print(str)  #先行后列，从0开始
+    
+    colx3 = colx3+1 #读取的时间+1天   
+    print(f"colx={colx}")
+    print(f"colx3={colx3}") 
+
+    if colx3 == colx-2:  #如果下一天的日期所对应的列已为空
+        print("写入完成")
+        break 
+    else:
+        print("正在写入")    #否则，继续写入
+
+sh.cell(1, 1).value = "OID"  #该函数要求结构行列从1开始
+sh.cell(1, 2).value = "name"  
+sh.cell(1, 3).value = "time" 
+sh.cell(1, 4).value = "value" 
+sh.cell(1, 6).value = "y" 
+sh.cell(1, 5).value = "x" 
+
+book.save('timecube.xlsx')
